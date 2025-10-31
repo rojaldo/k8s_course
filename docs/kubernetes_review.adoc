@@ -1357,7 +1357,8 @@ spec:
       emptyDir: {}
 ----
 
-En este ejemplo:
+
+.Ejemplo de init container:
 - El primer init container espera a que el servicio `mi-db-service` esté disponible en el DNS.
 - El segundo init container configura permisos en el volumen compartido.
 - Los contenedores principales solo inician cuando ambos init containers han completado exitosamente.
@@ -1584,6 +1585,7 @@ spec:
 ----
 
 En este ejemplo:
+.Ejemplo de requests y limits:
 - El pod requiere al menos 128 MiB de memoria y 0.25 CPU cores.
 - Puede usar hasta 256 MiB de memoria y 0.5 CPU cores.
 
@@ -1883,7 +1885,8 @@ kubectl taint nodes worker-node-2 dedicado=backend:NoExecute
 kubectl taint nodes worker-node-3 mantenimiento=true:PreferNoSchedule
 ----
 
-Efectos de taints:
+
+.Tipos de efectos disponibles:
 - `NoSchedule`: No programa pods sin tolerancia (los existentes permanecen).
 - `PreferNoSchedule`: Intenta no programar, pero no es estricto.
 - `NoExecute`: No programa nuevos pods y elimina los existentes sin tolerancia.
@@ -2051,6 +2054,7 @@ spec:
 ==== PriorityClasses del sistema
 
 Kubernetes incluye dos priority classes por defecto:
+.Priority classes predefinidas:
 - `system-cluster-critical`: Para componentes críticos del clúster (valor: 2000000000).
 - `system-node-critical`: Para componentes críticos del nodo (valor: 2000001000).
 
@@ -3270,14 +3274,18 @@ kubectl create secret tls miapp-tls-secret --cert=certificado.crt --key=clave.ke
 ----
 @startuml
 actor Usuario
-cloud "Internet"
-cloud "Ingress Controller"
-node "Kubernetes Cluster" {
-  [Service A] --> [Pod A1]
-  [Service A] --> [Pod A2]
+cloud Internet
+cloud IngressCtrl as "Ingress\nController"
+package "Kubernetes Cluster" {
+  component Service
+  component Pod1 as "Pod A1"
+  component Pod2 as "Pod A2"
+  Service --> Pod1
+  Service --> Pod2
 }
-Usuario --> "Internet" --> "Ingress Controller" : Solicitud HTTP/HTTPS
-"Ingress Controller" --> [Service A] : Enrutamiento según reglas
+Usuario --> Internet
+Internet --> IngressCtrl
+IngressCtrl --> Service
 @enduml
 ----
 
@@ -3302,14 +3310,18 @@ La mayoría de los Service Mesh modernos, como Istio o Linkerd, utilizan el patr
 [plantuml, service-mesh-architecture, png]
 ----
 @startuml
-node "Nodo Kubernetes" {
-  [Servicio A] - [Sidecar Proxy A]
-  [Servicio B] - [Sidecar Proxy B]
+package "Nodo Kubernetes" {
+  component ServA as "Servicio A"
+  component ProxyA as "Sidecar\nProxy A"
+  component ServB as "Servicio B"
+  component ProxyB as "Sidecar\nProxy B"
+  ServA - ProxyA
+  ServB - ProxyB
+  ProxyA <--> ProxyB: Comunicación
 }
-[Sidecar Proxy A] <--> [Sidecar Proxy B] : Comunicación gestionada
-cloud "Control Plane"
-[Sidecar Proxy A] ..> "Control Plane" : Configuración y métricas
-[Sidecar Proxy B] ..> "Control Plane"
+cloud CtrlPlane as "Control Plane"
+ProxyA ..> CtrlPlane
+ProxyB ..> CtrlPlane
 @enduml
 ----
 
@@ -4030,15 +4042,16 @@ spec:
 ----
 @startuml
 actor Usuario
-cloud "Internet"
-cloud "Ingress/Service Mesh"
-node "Kubernetes Cluster" {
-  [Pods v1] as v1
-  [Pods v2] as v2
+cloud Internet
+cloud Mesh as "Ingress/\nService Mesh"
+package "Kubernetes Cluster" {
+  component v1 as "Pods v1"
+  component v2 as "Pods v2"
 }
-Usuario --> "Internet" --> "Ingress/Service Mesh"
-"Ingress/Service Mesh" --> v1 : Tráfico estable/canary
-"Ingress/Service Mesh" --> v2 : Tráfico canary/green
+Usuario --> Internet
+Internet --> Mesh
+Mesh --> v1: Tráfico\nEstable
+Mesh --> v2: Tráfico\nCanary
 @enduml
 ----
 
@@ -4473,12 +4486,13 @@ spec:
 [plantuml, network-policy-example, png]
 ----
 @startuml
-node "Namespace" {
-  [Pod frontend] -down- [Pod backend]
+rectangle Namespace {
+  component frontend
+  component backend
+  frontend --> backend: Permitido
 }
-[Pod frontend] --> [Pod backend] : Permitido
-actor "Otro Pod" as Otro
-Otro -x [Pod backend] : Denegado
+component other as "Otro Pod"
+other --> backend: Bloqueado (X)
 @enduml
 ----
 
@@ -4938,7 +4952,8 @@ Las alertas y notificaciones son componentes clave de la observabilidad en Kuber
 
 Las alertas suelen configurarse sobre métricas recolectadas por Prometheus. Cuando una métrica supera un umbral definido (por ejemplo, uso de CPU alto, pods no disponibles, errores en aplicaciones), Prometheus genera una alerta que es gestionada por Alertmanager.
 
-Alertmanager es el componente encargado de:
+
+.Funciones de Alertmanager:
 - Agrupar, silenciar y deduplicar alertas.
 - Enviar notificaciones a canales como email, Slack, Microsoft Teams, PagerDuty, Opsgenie, Webhooks, etc.
 - Aplicar reglas de enrutamiento y escalado de alertas.
@@ -5035,7 +5050,7 @@ Helm es el gestor de paquetes más utilizado en Kubernetes. Permite definir, ins
 
 ==== ¿Qué es un chart de Helm?
 
-Un *chart* es un paquete que contiene:
+.Un *chart* es un paquete que contiene:
 - Plantillas YAML parametrizables para recursos de Kubernetes (Deployments, Services, ConfigMaps, etc.).
 - Un archivo `values.yaml` con los valores por defecto y configurables.
 - Metadatos (`Chart.yaml`) y documentación opcional (`README.md`).
@@ -6074,6 +6089,7 @@ jobs:
 ==== Buenas prácticas
 
 En la implementación de pipelines de CI/CD para Kubernetes, considera las siguientes recomendaciones:
+.Mejores prácticas para CI/CD:
 - Versiona todos los manifiestos y charts en el repositorio.
 - Usa pipelines independientes para cada entorno (dev, staging, prod).
 - Automatiza pruebas antes del despliegue (lint, tests, validaciones de manifiestos).
@@ -6176,7 +6192,7 @@ flux create kustomization mi-app \
 
 ==== Buenas prácticas
 
-Para implementar GitOps de forma efectiva, considera las siguientes recomendaciones:
+.Para implementar GitOps de forma efectiva, considera las siguientes recomendaciones:
 - Versiona todos los manifiestos y charts en Git.
 - Usa ramas y pull requests para gestionar cambios y revisiones.
 - Protege el acceso al repositorio y usa revisiones de código.
@@ -6360,6 +6376,7 @@ spec:
 ==== Buenas prácticas
 
 Con las estrategias de despliegue, considera las siguientes recomendaciones:
+.Recomendaciones para estrategias:
 - Automatiza los despliegues y cambios de tráfico usando herramientas de CI/CD.
 - Supervisa métricas y logs durante el despliegue para detectar problemas rápidamente.
 - Define criterios claros de rollback y monitorea la experiencia del usuario.
@@ -6371,15 +6388,16 @@ Con las estrategias de despliegue, considera las siguientes recomendaciones:
 ----
 @startuml
 actor Usuario
-cloud "Internet"
-cloud "Ingress/Service Mesh"
-node "Kubernetes Cluster" {
-  [Pods v1] as v1
-  [Pods v2] as v2
+cloud Internet
+card Mesh as "Ingress/\nMesh"
+package "K8s Cluster" {
+  card v1 as "Pods v1"
+  card v2 as "Pods v2"
 }
-Usuario --> "Internet" --> "Ingress/Service Mesh"
-"Ingress/Service Mesh" --> v1 : Tráfico estable/canary
-"Ingress/Service Mesh" --> v2 : Tráfico canary/green
+Usuario --> Internet
+Internet --> Mesh
+Mesh --> v1
+Mesh --> v2
 @enduml
 ----
 
@@ -6446,6 +6464,7 @@ deploy:
 ==== Buenas prácticas
 
 Para integrar herramientas en tus pipelines de CI/CD, considera las siguientes recomendaciones:
+.Integración de herramientas:
 - Integra herramientas de análisis y seguridad en todas las etapas del pipeline.
 - Usa Helm o Kustomize para gestionar la configuración y el despliegue.
 - Centraliza logs y métricas para facilitar el troubleshooting.
@@ -6517,7 +6536,7 @@ post-deploy:
 
 ==== Buenas prácticas
 
-Los siguientes consejos te ayudarán a automatizar pruebas y despliegues de forma efectiva:
+.Automatización efectiva:
 - Automatiza todas las pruebas posibles antes y después del despliegue.
 - Falla el pipeline si se detectan vulnerabilidades críticas o pruebas fallidas.
 - Usa entornos efímeros (review apps) para validar cambios antes de fusionar a main.
@@ -6765,7 +6784,7 @@ La renovación automática es esencial para evitar interrupciones. `cert-manager
 
 ==== Buenas prácticas en la gestión de certificados
 
-Las siguientes recomendaciones te ayudarán a gestionar certificados y TLS de forma segura y eficiente:
+.Gestión segura de certificados:
 - Usar certificados de una CA confiable en producción.
 - Proteger las claves privadas y restringir su acceso.
 - Automatizar la emisión y renovación de certificados.
@@ -6780,7 +6799,7 @@ La protección de los datos y la capacidad de restaurarlos ante fallos, errores 
 
 Un backup es una copia de los datos o configuraciones críticas que se almacena en un lugar seguro para poder restaurarla en caso de pérdida o corrupción. La recuperación (restore) es el proceso de devolver los datos a su estado original a partir de una copia de seguridad.
 
-Las estrategias efectivas deben considerar:
+.Consideraciones estratégicas:
 - Qué datos respaldar (volúmenes, bases de datos, configuraciones, manifiestos).
 - Frecuencia de los backups (diaria, semanal, incremental, diferencial).
 - Dónde almacenar los backups (local, remoto, nube).
@@ -6818,6 +6837,7 @@ docker run --rm \
 En Kubernetes, además de los volúmenes persistentes (PV/PVC), es importante respaldar los recursos del clúster (manifiestos, secretos, configuraciones).
 
 Herramientas populares:
+.Herramientas recomendadas para backup:
 - `Velero`: Solución open source para backup y recuperación de clústeres Kubernetes.
 - `Kasten K10`, `Stash`, `TrilioVault`: Otras soluciones comerciales y open source.
 
@@ -6882,7 +6902,7 @@ No basta con hacer backups; es imprescindible probar periódicamente la restaura
 
 ==== Buenas prácticas
 
-Las siguientes recomendaciones te ayudarán a implementar estrategias de backup y recuperación efectivas:
+.Implementación efectiva:
 - Documentar los procedimientos de backup y recuperación.
 - Automatizar y monitorizar los procesos.
 - Proteger los backups con cifrado y control de acceso.
@@ -6897,7 +6917,7 @@ La optimización de recursos y costes es un aspecto clave en la administración 
 
 Optimizar recursos implica ajustar el uso de CPU, memoria, almacenamiento y red para que las aplicaciones funcionen correctamente sin consumir más de lo necesario. Esto se traduce en menores costes de infraestructura, especialmente en entornos cloud donde se paga por uso.
 
-Los principios básicos incluyen:
+.Los principios básicos incluyen:
 - Dimensionar correctamente los recursos asignados a cada servicio o contenedor.
 - Escalar dinámicamente según la demanda.
 - Automatizar la gestión de recursos.
@@ -7001,7 +7021,7 @@ sum(rate(container_cpu_usage_seconds_total{image!=""}[5m])) by (pod)
 
 ==== Buenas prácticas
 
-Para optimizar recursos y costes, considera las siguientes recomendaciones:
+.Para optimizar recursos y costes, considera las siguientes recomendaciones:
 - Revisar periódicamente el uso de recursos y ajustar configuraciones.
 - Automatizar el escalado y la limpieza de recursos.
 - Monitorizar y alertar sobre consumos anómalos.
@@ -7150,7 +7170,7 @@ Busca errores de configuración, variables de entorno faltantes o problemas de c
 
 ==== Buenas prácticas
 
-Las siguientes recomendaciones te ayudarán a mejorar el proceso de troubleshooting:
+.Las siguientes recomendaciones te ayudarán a mejorar el proceso de troubleshooting:
 - Automatizar la recolección de logs y métricas.
 - Documentar los problemas y soluciones encontradas.
 - Mantener procedimientos de troubleshooting actualizados.
@@ -7256,7 +7276,7 @@ kubectl delete crd crontabs.stable.example.com
 
 ==== Buenas prácticas
 
-Al trabajar con CRDs, considera las siguientes recomendaciones:
+.Al trabajar con CRDs, considera las siguientes recomendaciones:
 - Definir esquemas claros y validar los datos con OpenAPI v3.
 - Versionar las CRDs para facilitar la evolución y compatibilidad.
 - Documentar el uso y los campos de los recursos personalizados.
@@ -7339,7 +7359,7 @@ Esto indica al API server que enrute las solicitudes para el grupo y versión es
 
 ==== Buenas prácticas
 
-Las siguientes recomendaciones te ayudarán a implementar API Aggregation de forma efectiva:
+.Las siguientes recomendaciones te ayudarán a implementar API Aggregation de forma efectiva:
 - Documentar claramente los recursos y endpoints expuestos por la API agregada.
 - Monitorizar el rendimiento y la disponibilidad del servidor de API agregado.
 - Versionar las APIs agregadas para facilitar la evolución y compatibilidad.
@@ -7415,7 +7435,7 @@ az aks create --resource-group mi-grupo --name mi-cluster --node-count 3 --gener
 
 ==== Consideraciones y buenas prácticas
 
-Al usar servicios gestionados de Kubernetes, es importante considerar:
+.Al usar servicios gestionados de Kubernetes, es importante considerar:
 - **Costes**: Analizar el modelo de precios, ya que se paga por los recursos consumidos y, en algunos casos, por el control plane.
 - **Seguridad**: Configurar roles y políticas de acceso (RBAC, IAM) y proteger los endpoints de la API.
 - **Backup y recuperación**: Utilizar herramientas compatibles (Velero, snapshots de volúmenes) para proteger los datos y la configuración.
@@ -7691,3 +7711,1155 @@ helm install mi-mysql bitnami/mysql
 - *Edge Computing*: Kubernetes ligero (K3s, MicroK8s) para IoT y entornos distribuidos.
 - *Inteligencia Artificial y ML Ops*: Integración de flujos de trabajo de machine learning sobre Kubernetes.
 - *Seguridad avanzada*: Políticas de seguridad, escaneo de imágenes y Zero Trust en el ciclo de vida de aplicaciones.
+
+== Módulo 16: Terraform
+
+=== Introducción a Infrastructure as Code (IaC)
+
+*Infrastructure as Code (IaC)* es una práctica que permite gestionar y aprovisionar infraestructura mediante código declarativo o programático en lugar de procesos manuales. Esta metodología ofrece múltiples ventajas como versionado, automatización, reproducibilidad y colaboración en equipo.
+
+==== Beneficios de IaC
+
+- *Automatización*: Eliminación de tareas manuales repetitivas y propensas a errores.
+- *Versionado*: Control de versiones de la infraestructura igual que el código de aplicaciones.
+- *Reproducibilidad*: Capacidad de crear entornos idénticos de forma consistente.
+- *Documentación viva*: El código sirve como documentación actualizada de la infraestructura.
+- *Colaboración*: Múltiples equipos pueden trabajar sobre la misma infraestructura.
+- *Reutilización*: Módulos y componentes reutilizables en diferentes proyectos.
+
+==== Enfoques de IaC
+
+- *Declarativo*: Se define el estado deseado de la infraestructura (ejemplo: Terraform, Kubernetes manifiestos).
+- *Imperativo*: Se definen los pasos para alcanzar el estado deseado (ejemplo: scripts de shell, Ansible).
+
+=== ¿Qué es Terraform?
+
+*Terraform* es una herramienta open-source de HashiCorp para construir, cambiar y versionar infraestructura de forma segura y eficiente. Utiliza un lenguaje declarativo propio llamado HCL (HashiCorp Configuration Language) y soporta múltiples proveedores cloud y on-premises.
+
+==== Características principales
+
+- *Multi-cloud*: Soporta AWS, Azure, GCP, VMware, OpenStack y más de 1000 proveedores.
+- *Declarativo*: Defines el estado deseado, Terraform calcula los cambios necesarios.
+- *Plan de ejecución*: Muestra qué cambios se realizarán antes de aplicarlos.
+- *Grafo de recursos*: Construye un grafo de dependencias para paralelizar operaciones.
+- *State management*: Mantiene el estado actual de la infraestructura.
+- *Módulos reutilizables*: Organiza y comparte configuraciones de infraestructura.
+
+==== Casos de uso
+
+- Aprovisionamiento de infraestructura cloud (VMs, redes, almacenamiento).
+- Gestión de clústeres Kubernetes y sus recursos.
+- Configuración de servicios de red (load balancers, DNS, firewalls).
+- Despliegue multi-cloud y multi-región.
+- Creación de entornos de desarrollo, staging y producción idénticos.
+
+=== Instalación de Terraform
+
+==== Linux (Ubuntu/Debian)
+
+[source,bash]
+----
+# Añadir la clave GPG de HashiCorp
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+# Añadir el repositorio
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+# Actualizar e instalar
+sudo apt update && sudo apt install terraform
+
+# Verificar instalación
+terraform version
+----
+
+==== Instalación con gestor de paquetes
+
+[source,bash]
+----
+# Homebrew (macOS/Linux)
+brew tap hashicorp/tap
+brew install hashicorp/tap/terraform
+
+# Chocolatey (Windows)
+choco install terraform
+
+# Verificar instalación
+terraform version
+----
+
+==== Instalación manual
+
+[source,bash]
+----
+# Descargar binario desde https://www.terraform.io/downloads
+wget https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_linux_amd64.zip
+unzip terraform_1.7.0_linux_amd64.zip
+sudo mv terraform /usr/local/bin/
+terraform version
+----
+
+=== Conceptos fundamentales de Terraform
+
+==== Providers
+
+Los *providers* son plugins que permiten a Terraform interactuar con APIs de proveedores cloud, SaaS y otros servicios.
+
+.Ejemplo de configuración de provider AWS:
+[source,hcl]
+----
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+  required_version = ">= 1.5.0"
+}
+
+provider "aws" {
+  region = "us-east-1"
+  
+  default_tags {
+    tags = {
+      Environment = "Production"
+      ManagedBy   = "Terraform"
+    }
+  }
+}
+----
+
+.Ejemplo con múltiples providers:
+[source,hcl]
+----
+provider "aws" {
+  region = "us-east-1"
+  alias  = "east"
+}
+
+provider "aws" {
+  region = "us-west-2"
+  alias  = "west"
+}
+
+# Usar provider específico
+resource "aws_instance" "east_server" {
+  provider      = aws.east
+  ami           = "ami-12345678"
+  instance_type = "t3.micro"
+}
+----
+
+==== Resources
+
+Los *resources* son los bloques fundamentales de Terraform y representan componentes de infraestructura (VMs, redes, etc.).
+
+.Ejemplo de recurso AWS EC2:
+[source,hcl]
+----
+resource "aws_instance" "web_server" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t3.micro"
+  
+  tags = {
+    Name        = "WebServer"
+    Environment = "Production"
+  }
+  
+  root_block_device {
+    volume_size = 20
+    volume_type = "gp3"
+  }
+  
+  user_data = <<-EOF
+              #!/bin/bash
+              apt-get update
+              apt-get install -y nginx
+              systemctl start nginx
+              EOF
+}
+----
+
+.Ejemplo de recurso Kubernetes:
+[source,hcl]
+----
+resource "kubernetes_deployment" "nginx" {
+  metadata {
+    name      = "nginx-deployment"
+    namespace = "default"
+    
+    labels = {
+      app = "nginx"
+    }
+  }
+  
+  spec {
+    replicas = 3
+    
+    selector {
+      match_labels = {
+        app = "nginx"
+      }
+    }
+    
+    template {
+      metadata {
+        labels = {
+          app = "nginx"
+        }
+      }
+      
+      spec {
+        container {
+          name  = "nginx"
+          image = "nginx:1.25"
+          
+          port {
+            container_port = 80
+          }
+          
+          resources {
+            requests = {
+              cpu    = "100m"
+              memory = "128Mi"
+            }
+            limits = {
+              cpu    = "200m"
+              memory = "256Mi"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+----
+
+==== Data Sources
+
+Los *data sources* permiten obtener información de recursos existentes fuera de Terraform para usarla en la configuración.
+
+.Ejemplo de data source:
+[source,hcl]
+----
+# Obtener información de una VPC existente
+data "aws_vpc" "existing" {
+  id = "vpc-12345678"
+}
+
+# Usar el data source en un recurso
+resource "aws_subnet" "public" {
+  vpc_id     = data.aws_vpc.existing.id
+  cidr_block = "10.0.1.0/24"
+}
+
+# Obtener AMI más reciente de Ubuntu
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"] # Canonical
+  
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+}
+
+resource "aws_instance" "server" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t3.micro"
+}
+----
+
+==== Variables
+
+Las *variables* permiten parametrizar la configuración de Terraform para hacerla reutilizable.
+
+.Definición de variables (variables.tf):
+[source,hcl]
+----
+variable "region" {
+  description = "AWS region donde desplegar recursos"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "instance_type" {
+  description = "Tipo de instancia EC2"
+  type        = string
+  default     = "t3.micro"
+  
+  validation {
+    condition     = contains(["t3.micro", "t3.small", "t3.medium"], var.instance_type)
+    error_message = "El tipo de instancia debe ser t3.micro, t3.small o t3.medium."
+  }
+}
+
+variable "environment" {
+  description = "Entorno de despliegue"
+  type        = string
+}
+
+variable "instance_count" {
+  description = "Número de instancias a crear"
+  type        = number
+  default     = 1
+}
+
+variable "enable_monitoring" {
+  description = "Habilitar monitorización detallada"
+  type        = bool
+  default     = false
+}
+
+variable "tags" {
+  description = "Tags comunes para todos los recursos"
+  type        = map(string)
+  default     = {}
+}
+
+variable "subnet_ids" {
+  description = "Lista de IDs de subnets"
+  type        = list(string)
+  default     = []
+}
+----
+
+.Uso de variables:
+[source,hcl]
+----
+resource "aws_instance" "server" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = var.instance_type
+  count         = var.instance_count
+  
+  monitoring = var.enable_monitoring
+  
+  tags = merge(
+    var.tags,
+    {
+      Name        = "Server-${count.index + 1}"
+      Environment = var.environment
+    }
+  )
+}
+----
+
+.Archivo de valores (terraform.tfvars):
+[source,hcl]
+----
+region           = "eu-west-1"
+instance_type    = "t3.small"
+environment      = "production"
+instance_count   = 3
+enable_monitoring = true
+
+tags = {
+  Project   = "MyApp"
+  ManagedBy = "Terraform"
+  Owner     = "DevOps Team"
+}
+
+subnet_ids = ["subnet-abc123", "subnet-def456", "subnet-ghi789"]
+----
+
+==== Outputs
+
+Los *outputs* exponen valores de los recursos creados para su uso posterior o consulta.
+
+.Definición de outputs (outputs.tf):
+[source,hcl]
+----
+output "instance_ids" {
+  description = "IDs de las instancias EC2 creadas"
+  value       = aws_instance.server[*].id
+}
+
+output "instance_public_ips" {
+  description = "IPs públicas de las instancias"
+  value       = aws_instance.server[*].public_ip
+}
+
+output "instance_private_ips" {
+  description = "IPs privadas de las instancias"
+  value       = aws_instance.server[*].private_ip
+  sensitive   = false
+}
+
+output "vpc_id" {
+  description = "ID de la VPC utilizada"
+  value       = data.aws_vpc.existing.id
+}
+
+output "deployment_info" {
+  description = "Información completa del despliegue"
+  value = {
+    region      = var.region
+    environment = var.environment
+    instances   = length(aws_instance.server)
+    timestamp   = timestamp()
+  }
+}
+----
+
+.Consultar outputs después del apply:
+[source,bash]
+----
+# Ver todos los outputs
+terraform output
+
+# Ver un output específico
+terraform output instance_public_ips
+
+# Obtener output en formato JSON
+terraform output -json
+----
+
+==== State (Estado)
+
+El *state* es un archivo que Terraform usa para mapear recursos del mundo real con tu configuración y rastrear metadatos.
+
+.Características del state:
+- Por defecto se almacena localmente en `terraform.tfstate`.
+- Contiene información sensible (contraseñas, claves privadas).
+- Permite a Terraform saber qué recursos gestiona.
+- Se puede almacenar remotamente (S3, Terraform Cloud, etc.).
+
+.Configuración de backend remoto (S3):
+[source,hcl]
+----
+terraform {
+  backend "s3" {
+    bucket         = "mi-terraform-state"
+    key            = "production/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+    dynamodb_table = "terraform-locks"
+  }
+}
+----
+
+.Comandos útiles para gestionar el state:
+[source,bash]
+----
+# Ver el state actual
+terraform show
+
+# Listar recursos en el state
+terraform state list
+
+# Ver detalles de un recurso específico
+terraform state show aws_instance.web_server
+
+# Mover un recurso en el state
+terraform state mv aws_instance.old aws_instance.new
+
+# Eliminar un recurso del state (sin destruirlo)
+terraform state rm aws_instance.web_server
+
+# Pull del state remoto
+terraform state pull
+
+# Push del state local al remoto
+terraform state push
+----
+
+=== Comandos básicos de Terraform
+
+==== terraform init
+
+Inicializa un directorio de trabajo de Terraform. Descarga providers, módulos y configura el backend.
+
+[source,bash]
+----
+# Inicializar directorio
+terraform init
+
+# Reinicializar con upgrade de providers
+terraform init -upgrade
+
+# Inicializar solo backend
+terraform init -backend=true -backend-config="bucket=my-bucket"
+----
+
+==== terraform plan
+
+Crea un plan de ejecución mostrando qué cambios se realizarán.
+
+[source,bash]
+----
+# Crear plan
+terraform plan
+
+# Guardar plan en un archivo
+terraform plan -out=plan.tfplan
+
+# Plan con archivo de variables específico
+terraform plan -var-file="production.tfvars"
+
+# Plan para destruir recursos
+terraform plan -destroy
+----
+
+==== terraform apply
+
+Aplica los cambios necesarios para alcanzar el estado deseado.
+
+[source,bash]
+----
+# Aplicar cambios (solicita confirmación)
+terraform apply
+
+# Aplicar cambios automáticamente
+terraform apply -auto-approve
+
+# Aplicar un plan guardado
+terraform apply plan.tfplan
+
+# Aplicar con variables
+terraform apply -var="region=us-west-2" -var="instance_count=3"
+----
+
+==== terraform destroy
+
+Destruye todos los recursos gestionados por Terraform.
+
+[source,bash]
+----
+# Destruir todos los recursos (solicita confirmación)
+terraform destroy
+
+# Destruir automáticamente
+terraform destroy -auto-approve
+
+# Destruir recursos específicos
+terraform destroy -target=aws_instance.web_server
+----
+
+==== Otros comandos útiles
+
+[source,bash]
+----
+# Validar sintaxis de los archivos
+terraform validate
+
+# Formatear código siguiendo estándares
+terraform fmt
+
+# Formatear recursivamente
+terraform fmt -recursive
+
+# Ver el grafo de dependencias
+terraform graph | dot -Tpng > graph.png
+
+# Mostrar información del workspace actual
+terraform workspace show
+
+# Listar workspaces
+terraform workspace list
+
+# Crear nuevo workspace
+terraform workspace new staging
+
+# Cambiar de workspace
+terraform workspace select production
+
+# Actualizar state con cambios externos
+terraform refresh
+
+# Importar recurso existente a Terraform
+terraform import aws_instance.web_server i-1234567890abcdef0
+----
+
+=== Módulos de Terraform
+
+Los *módulos* son contenedores de múltiples recursos que se usan juntos. Permiten organizar, encapsular y reutilizar configuración.
+
+==== Estructura de un módulo
+
+[source,text]
+----
+modules/
+└── webserver/
+    ├── main.tf        # Recursos principales
+    ├── variables.tf   # Variables de entrada
+    ├── outputs.tf     # Valores de salida
+    └── README.md      # Documentación
+----
+
+==== Ejemplo de módulo (webserver)
+
+.modules/webserver/main.tf:
+[source,hcl]
+----
+resource "aws_security_group" "web" {
+  name_prefix = "${var.name_prefix}-web-"
+  description = "Security group for web server"
+  vpc_id      = var.vpc_id
+  
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  tags = var.tags
+}
+
+resource "aws_instance" "web" {
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  subnet_id     = var.subnet_id
+  
+  vpc_security_group_ids = [aws_security_group.web.id]
+  
+  user_data = var.user_data
+  
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-web-server"
+    }
+  )
+}
+----
+
+.modules/webserver/variables.tf:
+[source,hcl]
+----
+variable "name_prefix" {
+  description = "Prefijo para nombrar recursos"
+  type        = string
+}
+
+variable "vpc_id" {
+  description = "ID de la VPC"
+  type        = string
+}
+
+variable "subnet_id" {
+  description = "ID de la subnet"
+  type        = string
+}
+
+variable "ami_id" {
+  description = "ID de la AMI"
+  type        = string
+}
+
+variable "instance_type" {
+  description = "Tipo de instancia EC2"
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "user_data" {
+  description = "Script de user data"
+  type        = string
+  default     = ""
+}
+
+variable "tags" {
+  description = "Tags para los recursos"
+  type        = map(string)
+  default     = {}
+}
+----
+
+.modules/webserver/outputs.tf:
+[source,hcl]
+----
+output "instance_id" {
+  description = "ID de la instancia EC2"
+  value       = aws_instance.web.id
+}
+
+output "public_ip" {
+  description = "IP pública de la instancia"
+  value       = aws_instance.web.public_ip
+}
+
+output "security_group_id" {
+  description = "ID del security group"
+  value       = aws_security_group.web.id
+}
+----
+
+==== Uso del módulo
+
+.main.tf:
+[source,hcl]
+----
+module "production_webserver" {
+  source = "./modules/webserver"
+  
+  name_prefix   = "prod"
+  vpc_id        = "vpc-12345678"
+  subnet_id     = "subnet-abc123"
+  ami_id        = data.aws_ami.ubuntu.id
+  instance_type = "t3.small"
+  
+  user_data = file("${path.module}/scripts/install_nginx.sh")
+  
+  tags = {
+    Environment = "Production"
+    Project     = "WebApp"
+  }
+}
+
+module "staging_webserver" {
+  source = "./modules/webserver"
+  
+  name_prefix   = "staging"
+  vpc_id        = "vpc-87654321"
+  subnet_id     = "subnet-def456"
+  ami_id        = data.aws_ami.ubuntu.id
+  instance_type = "t3.micro"
+  
+  tags = {
+    Environment = "Staging"
+    Project     = "WebApp"
+  }
+}
+
+output "production_server_ip" {
+  value = module.production_webserver.public_ip
+}
+
+output "staging_server_ip" {
+  value = module.staging_webserver.public_ip
+}
+----
+
+==== Módulos públicos del Registry
+
+Terraform Registry contiene miles de módulos públicos listos para usar:
+
+[source,hcl]
+----
+# Módulo de VPC de AWS
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "5.0.0"
+  
+  name = "my-vpc"
+  cidr = "10.0.0.0/16"
+  
+  azs             = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+  
+  enable_nat_gateway = true
+  enable_vpn_gateway = true
+  
+  tags = {
+    Terraform   = "true"
+    Environment = "production"
+  }
+}
+
+# Módulo de cluster EKS
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "19.0.0"
+  
+  cluster_name    = "my-eks-cluster"
+  cluster_version = "1.28"
+  
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
+  
+  eks_managed_node_groups = {
+    general = {
+      desired_size = 2
+      min_size     = 1
+      max_size     = 3
+      
+      instance_types = ["t3.medium"]
+    }
+  }
+}
+----
+
+=== Terraform con Kubernetes
+
+Terraform puede gestionar recursos de Kubernetes directamente usando el provider oficial.
+
+==== Configuración del provider Kubernetes
+
+[source,hcl]
+----
+terraform {
+  required_providers {
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.24"
+    }
+  }
+}
+
+# Configuración usando kubeconfig
+provider "kubernetes" {
+  config_path    = "~/.kube/config"
+  config_context = "minikube"
+}
+
+# O configuración directa
+provider "kubernetes" {
+  host                   = "https://cluster-api.example.com"
+  client_certificate     = file("~/.kube/client-cert.pem")
+  client_key             = file("~/.kube/client-key.pem")
+  cluster_ca_certificate = file("~/.kube/cluster-ca-cert.pem")
+}
+----
+
+==== Ejemplo: Desplegar aplicación completa en Kubernetes
+
+[source,hcl]
+----
+# Namespace
+resource "kubernetes_namespace" "app" {
+  metadata {
+    name = "my-app"
+    
+    labels = {
+      environment = "production"
+    }
+  }
+}
+
+# ConfigMap
+resource "kubernetes_config_map" "app_config" {
+  metadata {
+    name      = "app-config"
+    namespace = kubernetes_namespace.app.metadata[0].name
+  }
+  
+  data = {
+    "app.properties" = <<-EOF
+      server.port=8080
+      db.host=postgres-service
+      db.port=5432
+    EOF
+  }
+}
+
+# Secret
+resource "kubernetes_secret" "db_credentials" {
+  metadata {
+    name      = "db-credentials"
+    namespace = kubernetes_namespace.app.metadata[0].name
+  }
+  
+  type = "Opaque"
+  
+  data = {
+    username = base64encode("dbuser")
+    password = base64encode("secure-password")
+  }
+}
+
+# Deployment
+resource "kubernetes_deployment" "app" {
+  metadata {
+    name      = "my-app"
+    namespace = kubernetes_namespace.app.metadata[0].name
+    
+    labels = {
+      app = "my-app"
+    }
+  }
+  
+  spec {
+    replicas = 3
+    
+    selector {
+      match_labels = {
+        app = "my-app"
+      }
+    }
+    
+    template {
+      metadata {
+        labels = {
+          app = "my-app"
+        }
+      }
+      
+      spec {
+        container {
+          name  = "app"
+          image = "myapp:1.0.0"
+          
+          port {
+            container_port = 8080
+          }
+          
+          env {
+            name = "DB_USER"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.db_credentials.metadata[0].name
+                key  = "username"
+              }
+            }
+          }
+          
+          env {
+            name = "DB_PASSWORD"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.db_credentials.metadata[0].name
+                key  = "password"
+              }
+            }
+          }
+          
+          volume_mount {
+            name       = "config"
+            mount_path = "/etc/config"
+          }
+          
+          resources {
+            requests = {
+              cpu    = "100m"
+              memory = "128Mi"
+            }
+            limits = {
+              cpu    = "500m"
+              memory = "512Mi"
+            }
+          }
+          
+          liveness_probe {
+            http_get {
+              path = "/health"
+              port = 8080
+            }
+            initial_delay_seconds = 30
+            period_seconds        = 10
+          }
+          
+          readiness_probe {
+            http_get {
+              path = "/ready"
+              port = 8080
+            }
+            initial_delay_seconds = 5
+            period_seconds        = 5
+          }
+        }
+        
+        volume {
+          name = "config"
+          config_map {
+            name = kubernetes_config_map.app_config.metadata[0].name
+          }
+        }
+      }
+    }
+  }
+}
+
+# Service
+resource "kubernetes_service" "app" {
+  metadata {
+    name      = "my-app-service"
+    namespace = kubernetes_namespace.app.metadata[0].name
+  }
+  
+  spec {
+    selector = {
+      app = "my-app"
+    }
+    
+    port {
+      name        = "http"
+      port        = 80
+      target_port = 8080
+    }
+    
+    type = "LoadBalancer"
+  }
+}
+
+# Ingress
+resource "kubernetes_ingress_v1" "app" {
+  metadata {
+    name      = "my-app-ingress"
+    namespace = kubernetes_namespace.app.metadata[0].name
+    
+    annotations = {
+      "kubernetes.io/ingress.class"                = "nginx"
+      "cert-manager.io/cluster-issuer"             = "letsencrypt-prod"
+      "nginx.ingress.kubernetes.io/rewrite-target" = "/"
+    }
+  }
+  
+  spec {
+    tls {
+      hosts       = ["myapp.example.com"]
+      secret_name = "myapp-tls"
+    }
+    
+    rule {
+      host = "myapp.example.com"
+      
+      http {
+        path {
+          path      = "/"
+          path_type = "Prefix"
+          
+          backend {
+            service {
+              name = kubernetes_service.app.metadata[0].name
+              port {
+                number = 80
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+# HorizontalPodAutoscaler
+resource "kubernetes_horizontal_pod_autoscaler_v2" "app" {
+  metadata {
+    name      = "my-app-hpa"
+    namespace = kubernetes_namespace.app.metadata[0].name
+  }
+  
+  spec {
+    scale_target_ref {
+      api_version = "apps/v1"
+      kind        = "Deployment"
+      name        = kubernetes_deployment.app.metadata[0].name
+    }
+    
+    min_replicas = 2
+    max_replicas = 10
+    
+    metric {
+      type = "Resource"
+      resource {
+        name = "cpu"
+        target {
+          type                = "Utilization"
+          average_utilization = 70
+        }
+      }
+    }
+    
+    metric {
+      type = "Resource"
+      resource {
+        name = "memory"
+        target {
+          type                = "Utilization"
+          average_utilization = 80
+        }
+      }
+    }
+  }
+}
+
+# Outputs
+output "namespace" {
+  value = kubernetes_namespace.app.metadata[0].name
+}
+
+output "service_load_balancer_ip" {
+  value = kubernetes_service.app.status[0].load_balancer[0].ingress[0].ip
+}
+
+output "ingress_hostname" {
+  value = "myapp.example.com"
+}
+----
+
+=== Buenas prácticas con Terraform
+
+==== Organización del código
+
+- *Separar por entornos*: Usa directorios o workspaces para dev, staging, production.
+- *Modularizar*: Divide la infraestructura en módulos reutilizables.
+- *Nombrado consistente*: Usa convenciones claras para recursos, variables y archivos.
+- *Documentación*: Incluye README.md en cada módulo con ejemplos de uso.
+
+==== Gestión del state
+
+- *Backend remoto*: Usa S3, Azure Blob, Terraform Cloud o similar.
+- *State locking*: Habilita bloqueo para evitar cambios concurrentes (DynamoDB con S3).
+- *Cifrado*: Activa cifrado del state en reposo y en tránsito.
+- *Backups*: Configura versionado y backups del state.
+- *Separación*: No compartas state entre entornos críticos.
+
+==== Seguridad
+
+- *No hardcodear secretos*: Usa variables de entorno, vaults o servicios de secrets.
+- *Sensitive data*: Marca outputs sensibles con `sensitive = true`.
+- *Permisos mínimos*: Usa roles de IAM con permisos justos y necesarios.
+- *Versionado*: Fija versiones de providers y módulos en producción.
+- *Scanning*: Usa herramientas como tfsec, checkov para detectar vulnerabilidades.
+
+==== Desarrollo y testing
+
+- *Validación*: Ejecuta `terraform validate` y `terraform fmt` antes de commits.
+- *Pre-commit hooks*: Automatiza validación y formateo.
+- *Plan siempre*: Revisa `terraform plan` antes de aplicar cambios.
+- *Testing*: Usa herramientas como Terratest para testing automatizado.
+- *Entornos temporales*: Crea entornos efímeros para pruebas.
+
+==== CI/CD
+
+- *Automatización*: Integra Terraform en pipelines CI/CD.
+- *Plan en PRs*: Muestra el plan en pull requests para revisión.
+- *Apply automático*: Solo en ramas protegidas tras aprobación.
+- *Rollback*: Mantén versiones anteriores del state para rollback.
+
+==== Comandos de ejemplo en CI/CD
+
+[source,bash]
+----
+# Pipeline CI/CD básico
+terraform init -backend-config="key=prod/terraform.tfstate"
+terraform validate
+terraform fmt -check -recursive
+terraform plan -out=plan.tfplan
+terraform apply -auto-approve plan.tfplan
+----
+
+=== Herramientas complementarias
+
+- *tfsec*: Escaneo de seguridad para código Terraform.
+- *Checkov*: Análisis estático de IaC para detectar misconfigurations.
+- *Terraform Docs*: Generación automática de documentación.
+- *Terragrunt*: Wrapper para gestionar configuraciones complejas y DRY.
+- *Atlantis*: Automatización de Terraform via pull requests.
+- *Infracost*: Estimación de costos de infraestructura.
+- *TFLint*: Linter para Terraform con reglas específicas por provider.
+
+=== Recursos adicionales
+
+- https://www.terraform.io/docs[Documentación oficial de Terraform]
+- https://registry.terraform.io/[Terraform Registry] - Módulos y providers públicos
+- https://learn.hashicorp.com/terraform[HashiCorp Learn] - Tutoriales oficiales
+- https://github.com/hashicorp/terraform[Repositorio de Terraform en GitHub]
+- https://www.terraform.io/cdktf[Terraform CDK] - Define infraestructura con lenguajes de programación
+- https://www.youtube.com/c/HashiCorp[Canal de YouTube de HashiCorp]

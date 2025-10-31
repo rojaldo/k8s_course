@@ -1110,6 +1110,74 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_tendencias_futuras_en_el_ecosistema_de_kubernetes">Tendencias futuras en el ecosistema de Kubernetes</a></li>
 </ul>
 </li>
+<li><a href="#_módulo_16_terraform">Módulo 16: Terraform</a>
+<ul class="sectlevel2">
+<li><a href="#_introducción_a_infrastructure_as_code_iac">Introducción a Infrastructure as Code (IaC)</a>
+<ul class="sectlevel3">
+<li><a href="#_beneficios_de_iac">Beneficios de IaC</a></li>
+<li><a href="#_enfoques_de_iac">Enfoques de IaC</a></li>
+</ul>
+</li>
+<li><a href="#_qué_es_terraform">¿Qué es Terraform?</a>
+<ul class="sectlevel3">
+<li><a href="#_características_principales">Características principales</a></li>
+<li><a href="#_casos_de_uso">Casos de uso</a></li>
+</ul>
+</li>
+<li><a href="#_instalación_de_terraform">Instalación de Terraform</a>
+<ul class="sectlevel3">
+<li><a href="#_linux_ubuntudebian">Linux (Ubuntu/Debian)</a></li>
+<li><a href="#_instalación_con_gestor_de_paquetes">Instalación con gestor de paquetes</a></li>
+<li><a href="#_instalación_manual">Instalación manual</a></li>
+</ul>
+</li>
+<li><a href="#_conceptos_fundamentales_de_terraform">Conceptos fundamentales de Terraform</a>
+<ul class="sectlevel3">
+<li><a href="#_providers">Providers</a></li>
+<li><a href="#_resources">Resources</a></li>
+<li><a href="#_data_sources">Data Sources</a></li>
+<li><a href="#_variables">Variables</a></li>
+<li><a href="#_outputs">Outputs</a></li>
+<li><a href="#_state_estado">State (Estado)</a></li>
+</ul>
+</li>
+<li><a href="#_comandos_básicos_de_terraform">Comandos básicos de Terraform</a>
+<ul class="sectlevel3">
+<li><a href="#_terraform_init">terraform init</a></li>
+<li><a href="#_terraform_plan">terraform plan</a></li>
+<li><a href="#_terraform_apply">terraform apply</a></li>
+<li><a href="#_terraform_destroy">terraform destroy</a></li>
+<li><a href="#_otros_comandos_útiles">Otros comandos útiles</a></li>
+</ul>
+</li>
+<li><a href="#_módulos_de_terraform">Módulos de Terraform</a>
+<ul class="sectlevel3">
+<li><a href="#_estructura_de_un_módulo">Estructura de un módulo</a></li>
+<li><a href="#_ejemplo_de_módulo_webserver">Ejemplo de módulo (webserver)</a></li>
+<li><a href="#_uso_del_módulo">Uso del módulo</a></li>
+<li><a href="#_módulos_públicos_del_registry">Módulos públicos del Registry</a></li>
+</ul>
+</li>
+<li><a href="#_terraform_con_kubernetes">Terraform con Kubernetes</a>
+<ul class="sectlevel3">
+<li><a href="#_configuración_del_provider_kubernetes">Configuración del provider Kubernetes</a></li>
+<li><a href="#_ejemplo_desplegar_aplicación_completa_en_kubernetes">Ejemplo: Desplegar aplicación completa en Kubernetes</a></li>
+</ul>
+</li>
+<li><a href="#_buenas_prácticas_con_terraform">Buenas prácticas con Terraform</a>
+<ul class="sectlevel3">
+<li><a href="#_organización_del_código">Organización del código</a></li>
+<li><a href="#_gestión_del_state">Gestión del state</a></li>
+<li><a href="#_seguridad">Seguridad</a></li>
+<li><a href="#_desarrollo_y_testing">Desarrollo y testing</a></li>
+<li><a href="#_cicd">CI/CD</a></li>
+<li><a href="#_comandos_de_ejemplo_en_cicd">Comandos de ejemplo en CI/CD</a></li>
+</ul>
+</li>
+<li><a href="#_herramientas_complementarias_2">Herramientas complementarias</a></li>
+<li><a href="#_recursos_adicionales_2">Recursos adicionales</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -3141,11 +3209,19 @@ spec:
       emptyDir: {}</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>En este ejemplo:
-- El primer init container espera a que el servicio <code>mi-db-service</code> esté disponible en el DNS.
-- El segundo init container configura permisos en el volumen compartido.
-- Los contenedores principales solo inician cuando ambos init containers han completado exitosamente.</p>
+<div class="ulist">
+<div class="title">Ejemplo de init container:</div>
+<ul>
+<li>
+<p>El primer init container espera a que el servicio <code>mi-db-service</code> esté disponible en el DNS.</p>
+</li>
+<li>
+<p>El segundo init container configura permisos en el volumen compartido.</p>
+</li>
+<li>
+<p>Los contenedores principales solo inician cuando ambos init containers han completado exitosamente.</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -3457,6 +3533,7 @@ spec:
 </div>
 <div class="paragraph">
 <p>En este ejemplo:
+.Ejemplo de requests y limits:
 - El pod requiere al menos 128 MiB de memoria y 0.25 CPU cores.
 - Puede usar hasta 256 MiB de memoria y 0.5 CPU cores.</p>
 </div>
@@ -3806,11 +3883,19 @@ kubectl taint nodes worker-node-2 dedicado=backend:NoExecute
 kubectl taint nodes worker-node-3 mantenimiento=true:PreferNoSchedule</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Efectos de taints:
-- <code>NoSchedule</code>: No programa pods sin tolerancia (los existentes permanecen).
-- <code>PreferNoSchedule</code>: Intenta no programar, pero no es estricto.
-- <code>NoExecute</code>: No programa nuevos pods y elimina los existentes sin tolerancia.</p>
+<div class="ulist">
+<div class="title">Tipos de efectos disponibles:</div>
+<ul>
+<li>
+<p><code>NoSchedule</code>: No programa pods sin tolerancia (los existentes permanecen).</p>
+</li>
+<li>
+<p><code>PreferNoSchedule</code>: Intenta no programar, pero no es estricto.</p>
+</li>
+<li>
+<p><code>NoExecute</code>: No programa nuevos pods y elimina los existentes sin tolerancia.</p>
+</li>
+</ul>
 </div>
 <div class="listingblock">
 <div class="title">Pod con tolerations:</div>
@@ -4038,6 +4123,7 @@ spec:
 <h4 id="_priorityclasses_del_sistema">PriorityClasses del sistema</h4>
 <div class="paragraph">
 <p>Kubernetes incluye dos priority classes por defecto:
+.Priority classes predefinidas:
 - <code>system-cluster-critical</code>: Para componentes críticos del clúster (valor: 2000000000).
 - <code>system-node-critical</code>: Para componentes críticos del nodo (valor: 2000001000).</p>
 </div>
@@ -5794,33 +5880,9 @@ spec:
 </div>
 <div class="sect3">
 <h4 id="_resumen_gráfico_5">Resumen gráfico</h4>
-<div class="listingblock">
+<div class="imageblock">
 <div class="content">
-<pre>Failed to generate image: PlantUML preprocessing failed: [From &lt;input&gt; (line 9) ]
-
-@startuml
-actor Usuario
-cloud "Internet"
-cloud "Ingress Controller"
-node "Kubernetes Cluster" {
-  [Service A] --&gt; [Pod A1]
-  [Service A] --&gt; [Pod A2]
-}
-Usuario --&gt; "Internet" --&gt; "Ingress Controller" : Solicitud HTTP/HTTPS
-^^^^^
- Syntax Error? (Assumed diagram type: component)
-
-@startuml
-actor Usuario
-cloud "Internet"
-cloud "Ingress Controller"
-node "Kubernetes Cluster" {
-  [Service A] --&gt; [Pod A1]
-  [Service A] --&gt; [Pod A2]
-}
-Usuario --&gt; "Internet" --&gt; "Ingress Controller" : Solicitud HTTP/HTTPS
-"Ingress Controller" --&gt; [Service A] : Enrutamiento según reglas
-@enduml</pre>
+<img src="ingress-controller.png" alt="ingress controller" width="251" height="561">
 </div>
 </div>
 </div>
@@ -5862,7 +5924,7 @@ Usuario --&gt; "Internet" --&gt; "Ingress Controller" : Solicitud HTTP/HTTPS
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="service-mesh-architecture.png" alt="service mesh architecture" width="533" height="346">
+<img src="service-mesh-architecture.png" alt="service mesh architecture" width="329" height="379">
 </div>
 </div>
 <div class="ulist">
@@ -6795,34 +6857,9 @@ spec:
 </div>
 <div class="sect3">
 <h4 id="_resumen_gráfico_6">Resumen gráfico</h4>
-<div class="listingblock">
+<div class="imageblock">
 <div class="content">
-<pre>Failed to generate image: PlantUML preprocessing failed: [From &lt;input&gt; (line 9) ]
-
-@startuml
-actor Usuario
-cloud "Internet"
-cloud "Ingress/Service Mesh"
-node "Kubernetes Cluster" {
-  [Pods v1] as v1
-  [Pods v2] as v2
-}
-Usuario --&gt; "Internet" --&gt; "Ingress/Service Mesh"
-^^^^^
- Syntax Error? (Assumed diagram type: component)
-
-@startuml
-actor Usuario
-cloud "Internet"
-cloud "Ingress/Service Mesh"
-node "Kubernetes Cluster" {
-  [Pods v1] as v1
-  [Pods v2] as v2
-}
-Usuario --&gt; "Internet" --&gt; "Ingress/Service Mesh"
-"Ingress/Service Mesh" --&gt; v1 : Tráfico estable/canary
-"Ingress/Service Mesh" --&gt; v2 : Tráfico canary/green
-@enduml</pre>
+<img src="advanced-deploy-strategies.png" alt="advanced deploy strategies" width="262" height="515">
 </div>
 </div>
 </div>
@@ -7406,28 +7443,9 @@ spec:
 </div>
 <div class="sect3">
 <h4 id="_diagrama_explicativo">Diagrama explicativo</h4>
-<div class="listingblock">
+<div class="imageblock">
 <div class="content">
-<pre>Failed to generate image: PlantUML preprocessing failed: [From &lt;input&gt; (line 7) ]
-
-@startuml
-node "Namespace" {
-  [Pod frontend] -down- [Pod backend]
-}
-[Pod frontend] --&gt; [Pod backend] : Permitido
-actor "Otro Pod" as Otro
-Otro -x [Pod backend] : Denegado
-^^^^^
- Syntax Error? (Assumed diagram type: component)
-
-@startuml
-node "Namespace" {
-  [Pod frontend] -down- [Pod backend]
-}
-[Pod frontend] --&gt; [Pod backend] : Permitido
-actor "Otro Pod" as Otro
-Otro -x [Pod backend] : Denegado
-@enduml</pre>
+<img src="network-policy-example.png" alt="network policy example" width="264" height="243">
 </div>
 </div>
 </div>
@@ -8145,11 +8163,19 @@ with tracer.start_as_current_span("mi-operacion"):
 <div class="paragraph">
 <p>Las alertas suelen configurarse sobre métricas recolectadas por Prometheus. Cuando una métrica supera un umbral definido (por ejemplo, uso de CPU alto, pods no disponibles, errores en aplicaciones), Prometheus genera una alerta que es gestionada por Alertmanager.</p>
 </div>
-<div class="paragraph">
-<p>Alertmanager es el componente encargado de:
-- Agrupar, silenciar y deduplicar alertas.
-- Enviar notificaciones a canales como email, Slack, Microsoft Teams, PagerDuty, Opsgenie, Webhooks, etc.
-- Aplicar reglas de enrutamiento y escalado de alertas.</p>
+<div class="ulist">
+<div class="title">Funciones de Alertmanager:</div>
+<ul>
+<li>
+<p>Agrupar, silenciar y deduplicar alertas.</p>
+</li>
+<li>
+<p>Enviar notificaciones a canales como email, Slack, Microsoft Teams, PagerDuty, Opsgenie, Webhooks, etc.</p>
+</li>
+<li>
+<p>Aplicar reglas de enrutamiento y escalado de alertas.</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -8272,11 +8298,19 @@ receivers:
 </div>
 <div class="sect3">
 <h4 id="_qué_es_un_chart_de_helm">¿Qué es un chart de Helm?</h4>
-<div class="paragraph">
-<p>Un <strong>chart</strong> es un paquete que contiene:
-- Plantillas YAML parametrizables para recursos de Kubernetes (Deployments, Services, ConfigMaps, etc.).
-- Un archivo <code>values.yaml</code> con los valores por defecto y configurables.
-- Metadatos (<code>Chart.yaml</code>) y documentación opcional (<code>README.md</code>).</p>
+<div class="ulist">
+<div class="title">Un <strong>chart</strong> es un paquete que contiene:</div>
+<ul>
+<li>
+<p>Plantillas YAML parametrizables para recursos de Kubernetes (Deployments, Services, ConfigMaps, etc.).</p>
+</li>
+<li>
+<p>Un archivo <code>values.yaml</code> con los valores por defecto y configurables.</p>
+</li>
+<li>
+<p>Metadatos (<code>Chart.yaml</code>) y documentación opcional (<code>README.md</code>).</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>Esto permite desplegar aplicaciones con diferentes configuraciones de forma sencilla y repetible.</p>
@@ -9825,6 +9859,7 @@ jobs:
 <h4 id="_buenas_prácticas_36">Buenas prácticas</h4>
 <div class="paragraph">
 <p>En la implementación de pipelines de CI/CD para Kubernetes, considera las siguientes recomendaciones:
+.Mejores prácticas para CI/CD:
 - Versiona todos los manifiestos y charts en el repositorio.
 - Usa pipelines independientes para cada entorno (dev, staging, prod).
 - Automatiza pruebas antes del despliegue (lint, tests, validaciones de manifiestos).
@@ -9973,13 +10008,25 @@ flux install</code></pre>
 </div>
 <div class="sect3">
 <h4 id="_buenas_prácticas_37">Buenas prácticas</h4>
-<div class="paragraph">
-<p>Para implementar GitOps de forma efectiva, considera las siguientes recomendaciones:
-- Versiona todos los manifiestos y charts en Git.
-- Usa ramas y pull requests para gestionar cambios y revisiones.
-- Protege el acceso al repositorio y usa revisiones de código.
-- Documenta el flujo de trabajo GitOps y los procedimientos de rollback.
-- Supervisa el estado de sincronización y los logs de ArgoCD/Flux.</p>
+<div class="ulist">
+<div class="title">Para implementar GitOps de forma efectiva, considera las siguientes recomendaciones:</div>
+<ul>
+<li>
+<p>Versiona todos los manifiestos y charts en Git.</p>
+</li>
+<li>
+<p>Usa ramas y pull requests para gestionar cambios y revisiones.</p>
+</li>
+<li>
+<p>Protege el acceso al repositorio y usa revisiones de código.</p>
+</li>
+<li>
+<p>Documenta el flujo de trabajo GitOps y los procedimientos de rollback.</p>
+</li>
+<li>
+<p>Supervisa el estado de sincronización y los logs de ArgoCD/Flux.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -10167,6 +10214,7 @@ spec:
 <div class="paragraph">
 <div class="title">Los usuarios que envíen la cabecera <code>X-User-Type: beta</code> serán dirigidos a la versión canary.</div>
 <p>Con las estrategias de despliegue, considera las siguientes recomendaciones:
+.Recomendaciones para estrategias:
 - Automatiza los despliegues y cambios de tráfico usando herramientas de CI/CD.
 - Supervisa métricas y logs durante el despliegue para detectar problemas rápidamente.
 - Define criterios claros de rollback y monitorea la experiencia del usuario.
@@ -10175,34 +10223,9 @@ spec:
 </div>
 <div class="sect3">
 <h4 id="_resumen_gráfico_7">Resumen gráfico</h4>
-<div class="listingblock">
+<div class="imageblock">
 <div class="content">
-<pre>Failed to generate image: PlantUML preprocessing failed: [From &lt;input&gt; (line 9) ]
-
-@startuml
-actor Usuario
-cloud "Internet"
-cloud "Ingress/Service Mesh"
-node "Kubernetes Cluster" {
-  [Pods v1] as v1
-  [Pods v2] as v2
-}
-Usuario --&gt; "Internet" --&gt; "Ingress/Service Mesh"
-^^^^^
- Syntax Error? (Assumed diagram type: component)
-
-@startuml
-actor Usuario
-cloud "Internet"
-cloud "Ingress/Service Mesh"
-node "Kubernetes Cluster" {
-  [Pods v1] as v1
-  [Pods v2] as v2
-}
-Usuario --&gt; "Internet" --&gt; "Ingress/Service Mesh"
-"Ingress/Service Mesh" --&gt; v1 : Tráfico estable/canary
-"Ingress/Service Mesh" --&gt; v2 : Tráfico canary/green
-@enduml</pre>
+<img src="advanced-deploy-strategies.png" alt="advanced deploy strategies" width="222" height="404">
 </div>
 </div>
 </div>
@@ -10314,6 +10337,7 @@ deploy:
 <h4 id="_buenas_prácticas_39">Buenas prácticas</h4>
 <div class="paragraph">
 <p>Para integrar herramientas en tus pipelines de CI/CD, considera las siguientes recomendaciones:
+.Integración de herramientas:
 - Integra herramientas de análisis y seguridad en todas las etapas del pipeline.
 - Usa Helm o Kustomize para gestionar la configuración y el despliegue.
 - Centraliza logs y métricas para facilitar el troubleshooting.
@@ -10420,13 +10444,25 @@ post-deploy:
 </div>
 <div class="sect3">
 <h4 id="_buenas_prácticas_40">Buenas prácticas</h4>
-<div class="paragraph">
-<p>Los siguientes consejos te ayudarán a automatizar pruebas y despliegues de forma efectiva:
-- Automatiza todas las pruebas posibles antes y después del despliegue.
-- Falla el pipeline si se detectan vulnerabilidades críticas o pruebas fallidas.
-- Usa entornos efímeros (review apps) para validar cambios antes de fusionar a main.
-- Versiona y documenta los scripts y manifiestos de pruebas y despliegue.
-- Integra notificaciones automáticas para informar al equipo de los resultados.</p>
+<div class="ulist">
+<div class="title">Automatización efectiva:</div>
+<ul>
+<li>
+<p>Automatiza todas las pruebas posibles antes y después del despliegue.</p>
+</li>
+<li>
+<p>Falla el pipeline si se detectan vulnerabilidades críticas o pruebas fallidas.</p>
+</li>
+<li>
+<p>Usa entornos efímeros (review apps) para validar cambios antes de fusionar a main.</p>
+</li>
+<li>
+<p>Versiona y documenta los scripts y manifiestos de pruebas y despliegue.</p>
+</li>
+<li>
+<p>Integra notificaciones automáticas para informar al equipo de los resultados.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -10756,13 +10792,25 @@ spec:
 </div>
 <div class="sect3">
 <h4 id="_buenas_prácticas_en_la_gestión_de_certificados">Buenas prácticas en la gestión de certificados</h4>
-<div class="paragraph">
-<p>Las siguientes recomendaciones te ayudarán a gestionar certificados y TLS de forma segura y eficiente:
-- Usar certificados de una CA confiable en producción.
-- Proteger las claves privadas y restringir su acceso.
-- Automatizar la emisión y renovación de certificados.
-- Monitorizar la caducidad de los certificados.
-- Rotar certificados y claves periódicamente.</p>
+<div class="ulist">
+<div class="title">Gestión segura de certificados:</div>
+<ul>
+<li>
+<p>Usar certificados de una CA confiable en producción.</p>
+</li>
+<li>
+<p>Proteger las claves privadas y restringir su acceso.</p>
+</li>
+<li>
+<p>Automatizar la emisión y renovación de certificados.</p>
+</li>
+<li>
+<p>Monitorizar la caducidad de los certificados.</p>
+</li>
+<li>
+<p>Rotar certificados y claves periódicamente.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -10776,13 +10824,25 @@ spec:
 <div class="paragraph">
 <p>Un backup es una copia de los datos o configuraciones críticas que se almacena en un lugar seguro para poder restaurarla en caso de pérdida o corrupción. La recuperación (restore) es el proceso de devolver los datos a su estado original a partir de una copia de seguridad.</p>
 </div>
-<div class="paragraph">
-<p>Las estrategias efectivas deben considerar:
-- Qué datos respaldar (volúmenes, bases de datos, configuraciones, manifiestos).
-- Frecuencia de los backups (diaria, semanal, incremental, diferencial).
-- Dónde almacenar los backups (local, remoto, nube).
-- Cómo automatizar y verificar los backups.
-- Procedimientos claros de restauración y pruebas periódicas.</p>
+<div class="ulist">
+<div class="title">Consideraciones estratégicas:</div>
+<ul>
+<li>
+<p>Qué datos respaldar (volúmenes, bases de datos, configuraciones, manifiestos).</p>
+</li>
+<li>
+<p>Frecuencia de los backups (diaria, semanal, incremental, diferencial).</p>
+</li>
+<li>
+<p>Dónde almacenar los backups (local, remoto, nube).</p>
+</li>
+<li>
+<p>Cómo automatizar y verificar los backups.</p>
+</li>
+<li>
+<p>Procedimientos claros de restauración y pruebas periódicas.</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -10822,6 +10882,7 @@ spec:
 </div>
 <div class="paragraph">
 <p>Herramientas populares:
+.Herramientas recomendadas para backup:
 - <code>Velero</code>: Solución open source para backup y recuperación de clústeres Kubernetes.
 - <code>Kasten K10</code>, <code>Stash</code>, <code>TrilioVault</code>: Otras soluciones comerciales y open source.</p>
 </div>
@@ -10900,13 +10961,25 @@ velero backup create backup-diario --include-namespaces mi-namespace</code></pre
 </div>
 <div class="sect3">
 <h4 id="_buenas_prácticas_41">Buenas prácticas</h4>
-<div class="paragraph">
-<p>Las siguientes recomendaciones te ayudarán a implementar estrategias de backup y recuperación efectivas:
-- Documentar los procedimientos de backup y recuperación.
-- Automatizar y monitorizar los procesos.
-- Proteger los backups con cifrado y control de acceso.
-- Realizar pruebas de restauración regularmente.
-- Mantener varias copias y versiones de los backups.</p>
+<div class="ulist">
+<div class="title">Implementación efectiva:</div>
+<ul>
+<li>
+<p>Documentar los procedimientos de backup y recuperación.</p>
+</li>
+<li>
+<p>Automatizar y monitorizar los procesos.</p>
+</li>
+<li>
+<p>Proteger los backups con cifrado y control de acceso.</p>
+</li>
+<li>
+<p>Realizar pruebas de restauración regularmente.</p>
+</li>
+<li>
+<p>Mantener varias copias y versiones de los backups.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -10920,12 +10993,22 @@ velero backup create backup-diario --include-namespaces mi-namespace</code></pre
 <div class="paragraph">
 <p>Optimizar recursos implica ajustar el uso de CPU, memoria, almacenamiento y red para que las aplicaciones funcionen correctamente sin consumir más de lo necesario. Esto se traduce en menores costes de infraestructura, especialmente en entornos cloud donde se paga por uso.</p>
 </div>
-<div class="paragraph">
-<p>Los principios básicos incluyen:
-- Dimensionar correctamente los recursos asignados a cada servicio o contenedor.
-- Escalar dinámicamente según la demanda.
-- Automatizar la gestión de recursos.
-- Monitorizar y analizar el uso real para detectar ineficiencias.</p>
+<div class="ulist">
+<div class="title">Los principios básicos incluyen:</div>
+<ul>
+<li>
+<p>Dimensionar correctamente los recursos asignados a cada servicio o contenedor.</p>
+</li>
+<li>
+<p>Escalar dinámicamente según la demanda.</p>
+</li>
+<li>
+<p>Automatizar la gestión de recursos.</p>
+</li>
+<li>
+<p>Monitorizar y analizar el uso real para detectar ineficiencias.</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -11071,12 +11154,22 @@ spec:
 </div>
 <div class="sect3">
 <h4 id="_buenas_prácticas_42">Buenas prácticas</h4>
-<div class="paragraph">
-<p>Para optimizar recursos y costes, considera las siguientes recomendaciones:
-- Revisar periódicamente el uso de recursos y ajustar configuraciones.
-- Automatizar el escalado y la limpieza de recursos.
-- Monitorizar y alertar sobre consumos anómalos.
-- Fomentar la cultura de eficiencia entre los equipos de desarrollo y operaciones.</p>
+<div class="ulist">
+<div class="title">Para optimizar recursos y costes, considera las siguientes recomendaciones:</div>
+<ul>
+<li>
+<p>Revisar periódicamente el uso de recursos y ajustar configuraciones.</p>
+</li>
+<li>
+<p>Automatizar el escalado y la limpieza de recursos.</p>
+</li>
+<li>
+<p>Monitorizar y alertar sobre consumos anómalos.</p>
+</li>
+<li>
+<p>Fomentar la cultura de eficiencia entre los equipos de desarrollo y operaciones.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -11286,12 +11379,22 @@ kubectl logs mi-pod</code></pre>
 </div>
 <div class="sect3">
 <h4 id="_buenas_prácticas_43">Buenas prácticas</h4>
-<div class="paragraph">
-<p>Las siguientes recomendaciones te ayudarán a mejorar el proceso de troubleshooting:
-- Automatizar la recolección de logs y métricas.
-- Documentar los problemas y soluciones encontradas.
-- Mantener procedimientos de troubleshooting actualizados.
-- Capacitar al equipo en el uso de herramientas de diagnóstico.</p>
+<div class="ulist">
+<div class="title">Las siguientes recomendaciones te ayudarán a mejorar el proceso de troubleshooting:</div>
+<ul>
+<li>
+<p>Automatizar la recolección de logs y métricas.</p>
+</li>
+<li>
+<p>Documentar los problemas y soluciones encontradas.</p>
+</li>
+<li>
+<p>Mantener procedimientos de troubleshooting actualizados.</p>
+</li>
+<li>
+<p>Capacitar al equipo en el uso de herramientas de diagnóstico.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -11414,12 +11517,22 @@ spec:
 </div>
 <div class="sect3">
 <h4 id="_buenas_prácticas_44">Buenas prácticas</h4>
-<div class="paragraph">
-<p>Al trabajar con CRDs, considera las siguientes recomendaciones:
-- Definir esquemas claros y validar los datos con OpenAPI v3.
-- Versionar las CRDs para facilitar la evolución y compatibilidad.
-- Documentar el uso y los campos de los recursos personalizados.
-- Proteger el acceso a los recursos personalizados mediante RBAC.</p>
+<div class="ulist">
+<div class="title">Al trabajar con CRDs, considera las siguientes recomendaciones:</div>
+<ul>
+<li>
+<p>Definir esquemas claros y validar los datos con OpenAPI v3.</p>
+</li>
+<li>
+<p>Versionar las CRDs para facilitar la evolución y compatibilidad.</p>
+</li>
+<li>
+<p>Documentar el uso y los campos de los recursos personalizados.</p>
+</li>
+<li>
+<p>Proteger el acceso a los recursos personalizados mediante RBAC.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -11531,11 +11644,19 @@ spec:
 </div>
 <div class="sect3">
 <h4 id="_buenas_prácticas_45">Buenas prácticas</h4>
-<div class="paragraph">
-<p>Las siguientes recomendaciones te ayudarán a implementar API Aggregation de forma efectiva:
-- Documentar claramente los recursos y endpoints expuestos por la API agregada.
-- Monitorizar el rendimiento y la disponibilidad del servidor de API agregado.
-- Versionar las APIs agregadas para facilitar la evolución y compatibilidad.</p>
+<div class="ulist">
+<div class="title">Las siguientes recomendaciones te ayudarán a implementar API Aggregation de forma efectiva:</div>
+<ul>
+<li>
+<p>Documentar claramente los recursos y endpoints expuestos por la API agregada.</p>
+</li>
+<li>
+<p>Monitorizar el rendimiento y la disponibilidad del servidor de API agregado.</p>
+</li>
+<li>
+<p>Versionar las APIs agregadas para facilitar la evolución y compatibilidad.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -11673,13 +11794,25 @@ spec:
 </div>
 <div class="sect3">
 <h4 id="_consideraciones_y_buenas_prácticas">Consideraciones y buenas prácticas</h4>
-<div class="paragraph">
-<p>Al usar servicios gestionados de Kubernetes, es importante considerar:
-- <strong>Costes</strong>: Analizar el modelo de precios, ya que se paga por los recursos consumidos y, en algunos casos, por el control plane.
-- <strong>Seguridad</strong>: Configurar roles y políticas de acceso (RBAC, IAM) y proteger los endpoints de la API.
-- <strong>Backup y recuperación</strong>: Utilizar herramientas compatibles (Velero, snapshots de volúmenes) para proteger los datos y la configuración.
-- <strong>Monitorización</strong>: Integrar con las soluciones de logging y métricas del proveedor para detectar incidencias y optimizar recursos.
-- <strong>Actualizaciones</strong>: Planificar las actualizaciones de versión y probar la compatibilidad de las aplicaciones.</p>
+<div class="ulist">
+<div class="title">Al usar servicios gestionados de Kubernetes, es importante considerar:</div>
+<ul>
+<li>
+<p><strong>Costes</strong>: Analizar el modelo de precios, ya que se paga por los recursos consumidos y, en algunos casos, por el control plane.</p>
+</li>
+<li>
+<p><strong>Seguridad</strong>: Configurar roles y políticas de acceso (RBAC, IAM) y proteger los endpoints de la API.</p>
+</li>
+<li>
+<p><strong>Backup y recuperación</strong>: Utilizar herramientas compatibles (Velero, snapshots de volúmenes) para proteger los datos y la configuración.</p>
+</li>
+<li>
+<p><strong>Monitorización</strong>: Integrar con las soluciones de logging y métricas del proveedor para detectar incidencias y optimizar recursos.</p>
+</li>
+<li>
+<p><strong>Actualizaciones</strong>: Planificar las actualizaciones de versión y probar la compatibilidad de las aplicaciones.</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -12282,10 +12415,1374 @@ helm install mi-mysql bitnami/mysql</code></pre>
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_módulo_16_terraform">Módulo 16: Terraform</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_introducción_a_infrastructure_as_code_iac">Introducción a Infrastructure as Code (IaC)</h3>
+<div class="paragraph">
+<p><strong>Infrastructure as Code (IaC)</strong> es una práctica que permite gestionar y aprovisionar infraestructura mediante código declarativo o programático en lugar de procesos manuales. Esta metodología ofrece múltiples ventajas como versionado, automatización, reproducibilidad y colaboración en equipo.</p>
+</div>
+<div class="sect3">
+<h4 id="_beneficios_de_iac">Beneficios de IaC</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Automatización</strong>: Eliminación de tareas manuales repetitivas y propensas a errores.</p>
+</li>
+<li>
+<p><strong>Versionado</strong>: Control de versiones de la infraestructura igual que el código de aplicaciones.</p>
+</li>
+<li>
+<p><strong>Reproducibilidad</strong>: Capacidad de crear entornos idénticos de forma consistente.</p>
+</li>
+<li>
+<p><strong>Documentación viva</strong>: El código sirve como documentación actualizada de la infraestructura.</p>
+</li>
+<li>
+<p><strong>Colaboración</strong>: Múltiples equipos pueden trabajar sobre la misma infraestructura.</p>
+</li>
+<li>
+<p><strong>Reutilización</strong>: Módulos y componentes reutilizables en diferentes proyectos.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_enfoques_de_iac">Enfoques de IaC</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Declarativo</strong>: Se define el estado deseado de la infraestructura (ejemplo: Terraform, Kubernetes manifiestos).</p>
+</li>
+<li>
+<p><strong>Imperativo</strong>: Se definen los pasos para alcanzar el estado deseado (ejemplo: scripts de shell, Ansible).</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_qué_es_terraform">¿Qué es Terraform?</h3>
+<div class="paragraph">
+<p><strong>Terraform</strong> es una herramienta open-source de HashiCorp para construir, cambiar y versionar infraestructura de forma segura y eficiente. Utiliza un lenguaje declarativo propio llamado HCL (HashiCorp Configuration Language) y soporta múltiples proveedores cloud y on-premises.</p>
+</div>
+<div class="sect3">
+<h4 id="_características_principales">Características principales</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Multi-cloud</strong>: Soporta AWS, Azure, GCP, VMware, OpenStack y más de 1000 proveedores.</p>
+</li>
+<li>
+<p><strong>Declarativo</strong>: Defines el estado deseado, Terraform calcula los cambios necesarios.</p>
+</li>
+<li>
+<p><strong>Plan de ejecución</strong>: Muestra qué cambios se realizarán antes de aplicarlos.</p>
+</li>
+<li>
+<p><strong>Grafo de recursos</strong>: Construye un grafo de dependencias para paralelizar operaciones.</p>
+</li>
+<li>
+<p><strong>State management</strong>: Mantiene el estado actual de la infraestructura.</p>
+</li>
+<li>
+<p><strong>Módulos reutilizables</strong>: Organiza y comparte configuraciones de infraestructura.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_casos_de_uso">Casos de uso</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Aprovisionamiento de infraestructura cloud (VMs, redes, almacenamiento).</p>
+</li>
+<li>
+<p>Gestión de clústeres Kubernetes y sus recursos.</p>
+</li>
+<li>
+<p>Configuración de servicios de red (load balancers, DNS, firewalls).</p>
+</li>
+<li>
+<p>Despliegue multi-cloud y multi-región.</p>
+</li>
+<li>
+<p>Creación de entornos de desarrollo, staging y producción idénticos.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_instalación_de_terraform">Instalación de Terraform</h3>
+<div class="sect3">
+<h4 id="_linux_ubuntudebian">Linux (Ubuntu/Debian)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Añadir la clave GPG de HashiCorp
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+# Añadir el repositorio
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+# Actualizar e instalar
+sudo apt update &amp;&amp; sudo apt install terraform
+
+# Verificar instalación
+terraform version</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_instalación_con_gestor_de_paquetes">Instalación con gestor de paquetes</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Homebrew (macOS/Linux)
+brew tap hashicorp/tap
+brew install hashicorp/tap/terraform
+
+# Chocolatey (Windows)
+choco install terraform
+
+# Verificar instalación
+terraform version</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_instalación_manual">Instalación manual</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Descargar binario desde https://www.terraform.io/downloads
+wget https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_linux_amd64.zip
+unzip terraform_1.7.0_linux_amd64.zip
+sudo mv terraform /usr/local/bin/
+terraform version</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_conceptos_fundamentales_de_terraform">Conceptos fundamentales de Terraform</h3>
+<div class="sect3">
+<h4 id="_providers">Providers</h4>
+<div class="paragraph">
+<p>Los <strong>providers</strong> son plugins que permiten a Terraform interactuar con APIs de proveedores cloud, SaaS y otros servicios.</p>
+</div>
+<div class="listingblock">
+<div class="title">Ejemplo de configuración de provider AWS:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl">terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~&gt; 5.0"
+    }
+  }
+  required_version = "&gt;= 1.5.0"
+}
+
+provider "aws" {
+  region = "us-east-1"
+
+  default_tags {
+    tags = {
+      Environment = "Production"
+      ManagedBy   = "Terraform"
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Ejemplo con múltiples providers:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl">provider "aws" {
+  region = "us-east-1"
+  alias  = "east"
+}
+
+provider "aws" {
+  region = "us-west-2"
+  alias  = "west"
+}
+
+# Usar provider específico
+resource "aws_instance" "east_server" {
+  provider      = aws.east
+  ami           = "ami-12345678"
+  instance_type = "t3.micro"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_resources">Resources</h4>
+<div class="paragraph">
+<p>Los <strong>resources</strong> son los bloques fundamentales de Terraform y representan componentes de infraestructura (VMs, redes, etc.).</p>
+</div>
+<div class="listingblock">
+<div class="title">Ejemplo de recurso AWS EC2:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl">resource "aws_instance" "web_server" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t3.micro"
+
+  tags = {
+    Name        = "WebServer"
+    Environment = "Production"
+  }
+
+  root_block_device {
+    volume_size = 20
+    volume_type = "gp3"
+  }
+
+  user_data = &lt;&lt;-EOF
+              #!/bin/bash
+              apt-get update
+              apt-get install -y nginx
+              systemctl start nginx
+              EOF
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Ejemplo de recurso Kubernetes:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl">resource "kubernetes_deployment" "nginx" {
+  metadata {
+    name      = "nginx-deployment"
+    namespace = "default"
+
+    labels = {
+      app = "nginx"
+    }
+  }
+
+  spec {
+    replicas = 3
+
+    selector {
+      match_labels = {
+        app = "nginx"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "nginx"
+        }
+      }
+
+      spec {
+        container {
+          name  = "nginx"
+          image = "nginx:1.25"
+
+          port {
+            container_port = 80
+          }
+
+          resources {
+            requests = {
+              cpu    = "100m"
+              memory = "128Mi"
+            }
+            limits = {
+              cpu    = "200m"
+              memory = "256Mi"
+            }
+          }
+        }
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_data_sources">Data Sources</h4>
+<div class="paragraph">
+<p>Los <strong>data sources</strong> permiten obtener información de recursos existentes fuera de Terraform para usarla en la configuración.</p>
+</div>
+<div class="listingblock">
+<div class="title">Ejemplo de data source:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl"># Obtener información de una VPC existente
+data "aws_vpc" "existing" {
+  id = "vpc-12345678"
+}
+
+# Usar el data source en un recurso
+resource "aws_subnet" "public" {
+  vpc_id     = data.aws_vpc.existing.id
+  cidr_block = "10.0.1.0/24"
+}
+
+# Obtener AMI más reciente de Ubuntu
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"] # Canonical
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+}
+
+resource "aws_instance" "server" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t3.micro"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_variables">Variables</h4>
+<div class="paragraph">
+<p>Las <strong>variables</strong> permiten parametrizar la configuración de Terraform para hacerla reutilizable.</p>
+</div>
+<div class="listingblock">
+<div class="title">Definición de variables (variables.tf):</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl">variable "region" {
+  description = "AWS region donde desplegar recursos"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "instance_type" {
+  description = "Tipo de instancia EC2"
+  type        = string
+  default     = "t3.micro"
+
+  validation {
+    condition     = contains(["t3.micro", "t3.small", "t3.medium"], var.instance_type)
+    error_message = "El tipo de instancia debe ser t3.micro, t3.small o t3.medium."
+  }
+}
+
+variable "environment" {
+  description = "Entorno de despliegue"
+  type        = string
+}
+
+variable "instance_count" {
+  description = "Número de instancias a crear"
+  type        = number
+  default     = 1
+}
+
+variable "enable_monitoring" {
+  description = "Habilitar monitorización detallada"
+  type        = bool
+  default     = false
+}
+
+variable "tags" {
+  description = "Tags comunes para todos los recursos"
+  type        = map(string)
+  default     = {}
+}
+
+variable "subnet_ids" {
+  description = "Lista de IDs de subnets"
+  type        = list(string)
+  default     = []
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Uso de variables:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl">resource "aws_instance" "server" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = var.instance_type
+  count         = var.instance_count
+
+  monitoring = var.enable_monitoring
+
+  tags = merge(
+    var.tags,
+    {
+      Name        = "Server-${count.index + 1}"
+      Environment = var.environment
+    }
+  )
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Archivo de valores (terraform.tfvars):</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl">region           = "eu-west-1"
+instance_type    = "t3.small"
+environment      = "production"
+instance_count   = 3
+enable_monitoring = true
+
+tags = {
+  Project   = "MyApp"
+  ManagedBy = "Terraform"
+  Owner     = "DevOps Team"
+}
+
+subnet_ids = ["subnet-abc123", "subnet-def456", "subnet-ghi789"]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_outputs">Outputs</h4>
+<div class="paragraph">
+<p>Los <strong>outputs</strong> exponen valores de los recursos creados para su uso posterior o consulta.</p>
+</div>
+<div class="listingblock">
+<div class="title">Definición de outputs (outputs.tf):</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl">output "instance_ids" {
+  description = "IDs de las instancias EC2 creadas"
+  value       = aws_instance.server[*].id
+}
+
+output "instance_public_ips" {
+  description = "IPs públicas de las instancias"
+  value       = aws_instance.server[*].public_ip
+}
+
+output "instance_private_ips" {
+  description = "IPs privadas de las instancias"
+  value       = aws_instance.server[*].private_ip
+  sensitive   = false
+}
+
+output "vpc_id" {
+  description = "ID de la VPC utilizada"
+  value       = data.aws_vpc.existing.id
+}
+
+output "deployment_info" {
+  description = "Información completa del despliegue"
+  value = {
+    region      = var.region
+    environment = var.environment
+    instances   = length(aws_instance.server)
+    timestamp   = timestamp()
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Consultar outputs después del apply:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Ver todos los outputs
+terraform output
+
+# Ver un output específico
+terraform output instance_public_ips
+
+# Obtener output en formato JSON
+terraform output -json</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_state_estado">State (Estado)</h4>
+<div class="paragraph">
+<p>El <strong>state</strong> es un archivo que Terraform usa para mapear recursos del mundo real con tu configuración y rastrear metadatos.</p>
+</div>
+<div class="ulist">
+<div class="title">Características del state:</div>
+<ul>
+<li>
+<p>Por defecto se almacena localmente en <code>terraform.tfstate</code>.</p>
+</li>
+<li>
+<p>Contiene información sensible (contraseñas, claves privadas).</p>
+</li>
+<li>
+<p>Permite a Terraform saber qué recursos gestiona.</p>
+</li>
+<li>
+<p>Se puede almacenar remotamente (S3, Terraform Cloud, etc.).</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Configuración de backend remoto (S3):</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl">terraform {
+  backend "s3" {
+    bucket         = "mi-terraform-state"
+    key            = "production/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+    dynamodb_table = "terraform-locks"
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Comandos útiles para gestionar el state:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Ver el state actual
+terraform show
+
+# Listar recursos en el state
+terraform state list
+
+# Ver detalles de un recurso específico
+terraform state show aws_instance.web_server
+
+# Mover un recurso en el state
+terraform state mv aws_instance.old aws_instance.new
+
+# Eliminar un recurso del state (sin destruirlo)
+terraform state rm aws_instance.web_server
+
+# Pull del state remoto
+terraform state pull
+
+# Push del state local al remoto
+terraform state push</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_comandos_básicos_de_terraform">Comandos básicos de Terraform</h3>
+<div class="sect3">
+<h4 id="_terraform_init">terraform init</h4>
+<div class="paragraph">
+<p>Inicializa un directorio de trabajo de Terraform. Descarga providers, módulos y configura el backend.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Inicializar directorio
+terraform init
+
+# Reinicializar con upgrade de providers
+terraform init -upgrade
+
+# Inicializar solo backend
+terraform init -backend=true -backend-config="bucket=my-bucket"</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_terraform_plan">terraform plan</h4>
+<div class="paragraph">
+<p>Crea un plan de ejecución mostrando qué cambios se realizarán.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Crear plan
+terraform plan
+
+# Guardar plan en un archivo
+terraform plan -out=plan.tfplan
+
+# Plan con archivo de variables específico
+terraform plan -var-file="production.tfvars"
+
+# Plan para destruir recursos
+terraform plan -destroy</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_terraform_apply">terraform apply</h4>
+<div class="paragraph">
+<p>Aplica los cambios necesarios para alcanzar el estado deseado.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Aplicar cambios (solicita confirmación)
+terraform apply
+
+# Aplicar cambios automáticamente
+terraform apply -auto-approve
+
+# Aplicar un plan guardado
+terraform apply plan.tfplan
+
+# Aplicar con variables
+terraform apply -var="region=us-west-2" -var="instance_count=3"</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_terraform_destroy">terraform destroy</h4>
+<div class="paragraph">
+<p>Destruye todos los recursos gestionados por Terraform.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Destruir todos los recursos (solicita confirmación)
+terraform destroy
+
+# Destruir automáticamente
+terraform destroy -auto-approve
+
+# Destruir recursos específicos
+terraform destroy -target=aws_instance.web_server</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_otros_comandos_útiles">Otros comandos útiles</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Validar sintaxis de los archivos
+terraform validate
+
+# Formatear código siguiendo estándares
+terraform fmt
+
+# Formatear recursivamente
+terraform fmt -recursive
+
+# Ver el grafo de dependencias
+terraform graph | dot -Tpng &gt; graph.png
+
+# Mostrar información del workspace actual
+terraform workspace show
+
+# Listar workspaces
+terraform workspace list
+
+# Crear nuevo workspace
+terraform workspace new staging
+
+# Cambiar de workspace
+terraform workspace select production
+
+# Actualizar state con cambios externos
+terraform refresh
+
+# Importar recurso existente a Terraform
+terraform import aws_instance.web_server i-1234567890abcdef0</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_módulos_de_terraform">Módulos de Terraform</h3>
+<div class="paragraph">
+<p>Los <strong>módulos</strong> son contenedores de múltiples recursos que se usan juntos. Permiten organizar, encapsular y reutilizar configuración.</p>
+</div>
+<div class="sect3">
+<h4 id="_estructura_de_un_módulo">Estructura de un módulo</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">modules/
+└── webserver/
+    ├── main.tf        # Recursos principales
+    ├── variables.tf   # Variables de entrada
+    ├── outputs.tf     # Valores de salida
+    └── README.md      # Documentación</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_ejemplo_de_módulo_webserver">Ejemplo de módulo (webserver)</h4>
+<div class="listingblock">
+<div class="title">modules/webserver/main.tf:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl">resource "aws_security_group" "web" {
+  name_prefix = "${var.name_prefix}-web-"
+  description = "Security group for web server"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = var.tags
+}
+
+resource "aws_instance" "web" {
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  subnet_id     = var.subnet_id
+
+  vpc_security_group_ids = [aws_security_group.web.id]
+
+  user_data = var.user_data
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-web-server"
+    }
+  )
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">modules/webserver/variables.tf:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl">variable "name_prefix" {
+  description = "Prefijo para nombrar recursos"
+  type        = string
+}
+
+variable "vpc_id" {
+  description = "ID de la VPC"
+  type        = string
+}
+
+variable "subnet_id" {
+  description = "ID de la subnet"
+  type        = string
+}
+
+variable "ami_id" {
+  description = "ID de la AMI"
+  type        = string
+}
+
+variable "instance_type" {
+  description = "Tipo de instancia EC2"
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "user_data" {
+  description = "Script de user data"
+  type        = string
+  default     = ""
+}
+
+variable "tags" {
+  description = "Tags para los recursos"
+  type        = map(string)
+  default     = {}
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">modules/webserver/outputs.tf:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl">output "instance_id" {
+  description = "ID de la instancia EC2"
+  value       = aws_instance.web.id
+}
+
+output "public_ip" {
+  description = "IP pública de la instancia"
+  value       = aws_instance.web.public_ip
+}
+
+output "security_group_id" {
+  description = "ID del security group"
+  value       = aws_security_group.web.id
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_uso_del_módulo">Uso del módulo</h4>
+<div class="listingblock">
+<div class="title">main.tf:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl">module "production_webserver" {
+  source = "./modules/webserver"
+
+  name_prefix   = "prod"
+  vpc_id        = "vpc-12345678"
+  subnet_id     = "subnet-abc123"
+  ami_id        = data.aws_ami.ubuntu.id
+  instance_type = "t3.small"
+
+  user_data = file("${path.module}/scripts/install_nginx.sh")
+
+  tags = {
+    Environment = "Production"
+    Project     = "WebApp"
+  }
+}
+
+module "staging_webserver" {
+  source = "./modules/webserver"
+
+  name_prefix   = "staging"
+  vpc_id        = "vpc-87654321"
+  subnet_id     = "subnet-def456"
+  ami_id        = data.aws_ami.ubuntu.id
+  instance_type = "t3.micro"
+
+  tags = {
+    Environment = "Staging"
+    Project     = "WebApp"
+  }
+}
+
+output "production_server_ip" {
+  value = module.production_webserver.public_ip
+}
+
+output "staging_server_ip" {
+  value = module.staging_webserver.public_ip
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_módulos_públicos_del_registry">Módulos públicos del Registry</h4>
+<div class="paragraph">
+<p>Terraform Registry contiene miles de módulos públicos listos para usar:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl"># Módulo de VPC de AWS
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "5.0.0"
+
+  name = "my-vpc"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+
+  enable_nat_gateway = true
+  enable_vpn_gateway = true
+
+  tags = {
+    Terraform   = "true"
+    Environment = "production"
+  }
+}
+
+# Módulo de cluster EKS
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "19.0.0"
+
+  cluster_name    = "my-eks-cluster"
+  cluster_version = "1.28"
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
+
+  eks_managed_node_groups = {
+    general = {
+      desired_size = 2
+      min_size     = 1
+      max_size     = 3
+
+      instance_types = ["t3.medium"]
+    }
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_terraform_con_kubernetes">Terraform con Kubernetes</h3>
+<div class="paragraph">
+<p>Terraform puede gestionar recursos de Kubernetes directamente usando el provider oficial.</p>
+</div>
+<div class="sect3">
+<h4 id="_configuración_del_provider_kubernetes">Configuración del provider Kubernetes</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl">terraform {
+  required_providers {
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~&gt; 2.24"
+    }
+  }
+}
+
+# Configuración usando kubeconfig
+provider "kubernetes" {
+  config_path    = "~/.kube/config"
+  config_context = "minikube"
+}
+
+# O configuración directa
+provider "kubernetes" {
+  host                   = "https://cluster-api.example.com"
+  client_certificate     = file("~/.kube/client-cert.pem")
+  client_key             = file("~/.kube/client-key.pem")
+  cluster_ca_certificate = file("~/.kube/cluster-ca-cert.pem")
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_ejemplo_desplegar_aplicación_completa_en_kubernetes">Ejemplo: Desplegar aplicación completa en Kubernetes</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hcl hljs" data-lang="hcl"># Namespace
+resource "kubernetes_namespace" "app" {
+  metadata {
+    name = "my-app"
+
+    labels = {
+      environment = "production"
+    }
+  }
+}
+
+# ConfigMap
+resource "kubernetes_config_map" "app_config" {
+  metadata {
+    name      = "app-config"
+    namespace = kubernetes_namespace.app.metadata[0].name
+  }
+
+  data = {
+    "app.properties" = &lt;&lt;-EOF
+      server.port=8080
+      db.host=postgres-service
+      db.port=5432
+    EOF
+  }
+}
+
+# Secret
+resource "kubernetes_secret" "db_credentials" {
+  metadata {
+    name      = "db-credentials"
+    namespace = kubernetes_namespace.app.metadata[0].name
+  }
+
+  type = "Opaque"
+
+  data = {
+    username = base64encode("dbuser")
+    password = base64encode("secure-password")
+  }
+}
+
+# Deployment
+resource "kubernetes_deployment" "app" {
+  metadata {
+    name      = "my-app"
+    namespace = kubernetes_namespace.app.metadata[0].name
+
+    labels = {
+      app = "my-app"
+    }
+  }
+
+  spec {
+    replicas = 3
+
+    selector {
+      match_labels = {
+        app = "my-app"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "my-app"
+        }
+      }
+
+      spec {
+        container {
+          name  = "app"
+          image = "myapp:1.0.0"
+
+          port {
+            container_port = 8080
+          }
+
+          env {
+            name = "DB_USER"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.db_credentials.metadata[0].name
+                key  = "username"
+              }
+            }
+          }
+
+          env {
+            name = "DB_PASSWORD"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.db_credentials.metadata[0].name
+                key  = "password"
+              }
+            }
+          }
+
+          volume_mount {
+            name       = "config"
+            mount_path = "/etc/config"
+          }
+
+          resources {
+            requests = {
+              cpu    = "100m"
+              memory = "128Mi"
+            }
+            limits = {
+              cpu    = "500m"
+              memory = "512Mi"
+            }
+          }
+
+          liveness_probe {
+            http_get {
+              path = "/health"
+              port = 8080
+            }
+            initial_delay_seconds = 30
+            period_seconds        = 10
+          }
+
+          readiness_probe {
+            http_get {
+              path = "/ready"
+              port = 8080
+            }
+            initial_delay_seconds = 5
+            period_seconds        = 5
+          }
+        }
+
+        volume {
+          name = "config"
+          config_map {
+            name = kubernetes_config_map.app_config.metadata[0].name
+          }
+        }
+      }
+    }
+  }
+}
+
+# Service
+resource "kubernetes_service" "app" {
+  metadata {
+    name      = "my-app-service"
+    namespace = kubernetes_namespace.app.metadata[0].name
+  }
+
+  spec {
+    selector = {
+      app = "my-app"
+    }
+
+    port {
+      name        = "http"
+      port        = 80
+      target_port = 8080
+    }
+
+    type = "LoadBalancer"
+  }
+}
+
+# Ingress
+resource "kubernetes_ingress_v1" "app" {
+  metadata {
+    name      = "my-app-ingress"
+    namespace = kubernetes_namespace.app.metadata[0].name
+
+    annotations = {
+      "kubernetes.io/ingress.class"                = "nginx"
+      "cert-manager.io/cluster-issuer"             = "letsencrypt-prod"
+      "nginx.ingress.kubernetes.io/rewrite-target" = "/"
+    }
+  }
+
+  spec {
+    tls {
+      hosts       = ["myapp.example.com"]
+      secret_name = "myapp-tls"
+    }
+
+    rule {
+      host = "myapp.example.com"
+
+      http {
+        path {
+          path      = "/"
+          path_type = "Prefix"
+
+          backend {
+            service {
+              name = kubernetes_service.app.metadata[0].name
+              port {
+                number = 80
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+# HorizontalPodAutoscaler
+resource "kubernetes_horizontal_pod_autoscaler_v2" "app" {
+  metadata {
+    name      = "my-app-hpa"
+    namespace = kubernetes_namespace.app.metadata[0].name
+  }
+
+  spec {
+    scale_target_ref {
+      api_version = "apps/v1"
+      kind        = "Deployment"
+      name        = kubernetes_deployment.app.metadata[0].name
+    }
+
+    min_replicas = 2
+    max_replicas = 10
+
+    metric {
+      type = "Resource"
+      resource {
+        name = "cpu"
+        target {
+          type                = "Utilization"
+          average_utilization = 70
+        }
+      }
+    }
+
+    metric {
+      type = "Resource"
+      resource {
+        name = "memory"
+        target {
+          type                = "Utilization"
+          average_utilization = 80
+        }
+      }
+    }
+  }
+}
+
+# Outputs
+output "namespace" {
+  value = kubernetes_namespace.app.metadata[0].name
+}
+
+output "service_load_balancer_ip" {
+  value = kubernetes_service.app.status[0].load_balancer[0].ingress[0].ip
+}
+
+output "ingress_hostname" {
+  value = "myapp.example.com"
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_buenas_prácticas_con_terraform">Buenas prácticas con Terraform</h3>
+<div class="sect3">
+<h4 id="_organización_del_código">Organización del código</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Separar por entornos</strong>: Usa directorios o workspaces para dev, staging, production.</p>
+</li>
+<li>
+<p><strong>Modularizar</strong>: Divide la infraestructura en módulos reutilizables.</p>
+</li>
+<li>
+<p><strong>Nombrado consistente</strong>: Usa convenciones claras para recursos, variables y archivos.</p>
+</li>
+<li>
+<p><strong>Documentación</strong>: Incluye README.md en cada módulo con ejemplos de uso.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_gestión_del_state">Gestión del state</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Backend remoto</strong>: Usa S3, Azure Blob, Terraform Cloud o similar.</p>
+</li>
+<li>
+<p><strong>State locking</strong>: Habilita bloqueo para evitar cambios concurrentes (DynamoDB con S3).</p>
+</li>
+<li>
+<p><strong>Cifrado</strong>: Activa cifrado del state en reposo y en tránsito.</p>
+</li>
+<li>
+<p><strong>Backups</strong>: Configura versionado y backups del state.</p>
+</li>
+<li>
+<p><strong>Separación</strong>: No compartas state entre entornos críticos.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_seguridad">Seguridad</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>No hardcodear secretos</strong>: Usa variables de entorno, vaults o servicios de secrets.</p>
+</li>
+<li>
+<p><strong>Sensitive data</strong>: Marca outputs sensibles con <code>sensitive = true</code>.</p>
+</li>
+<li>
+<p><strong>Permisos mínimos</strong>: Usa roles de IAM con permisos justos y necesarios.</p>
+</li>
+<li>
+<p><strong>Versionado</strong>: Fija versiones de providers y módulos en producción.</p>
+</li>
+<li>
+<p><strong>Scanning</strong>: Usa herramientas como tfsec, checkov para detectar vulnerabilidades.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_desarrollo_y_testing">Desarrollo y testing</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Validación</strong>: Ejecuta <code>terraform validate</code> y <code>terraform fmt</code> antes de commits.</p>
+</li>
+<li>
+<p><strong>Pre-commit hooks</strong>: Automatiza validación y formateo.</p>
+</li>
+<li>
+<p><strong>Plan siempre</strong>: Revisa <code>terraform plan</code> antes de aplicar cambios.</p>
+</li>
+<li>
+<p><strong>Testing</strong>: Usa herramientas como Terratest para testing automatizado.</p>
+</li>
+<li>
+<p><strong>Entornos temporales</strong>: Crea entornos efímeros para pruebas.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_cicd">CI/CD</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Automatización</strong>: Integra Terraform en pipelines CI/CD.</p>
+</li>
+<li>
+<p><strong>Plan en PRs</strong>: Muestra el plan en pull requests para revisión.</p>
+</li>
+<li>
+<p><strong>Apply automático</strong>: Solo en ramas protegidas tras aprobación.</p>
+</li>
+<li>
+<p><strong>Rollback</strong>: Mantén versiones anteriores del state para rollback.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_comandos_de_ejemplo_en_cicd">Comandos de ejemplo en CI/CD</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Pipeline CI/CD básico
+terraform init -backend-config="key=prod/terraform.tfstate"
+terraform validate
+terraform fmt -check -recursive
+terraform plan -out=plan.tfplan
+terraform apply -auto-approve plan.tfplan</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_herramientas_complementarias_2">Herramientas complementarias</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>tfsec</strong>: Escaneo de seguridad para código Terraform.</p>
+</li>
+<li>
+<p><strong>Checkov</strong>: Análisis estático de IaC para detectar misconfigurations.</p>
+</li>
+<li>
+<p><strong>Terraform Docs</strong>: Generación automática de documentación.</p>
+</li>
+<li>
+<p><strong>Terragrunt</strong>: Wrapper para gestionar configuraciones complejas y DRY.</p>
+</li>
+<li>
+<p><strong>Atlantis</strong>: Automatización de Terraform via pull requests.</p>
+</li>
+<li>
+<p><strong>Infracost</strong>: Estimación de costos de infraestructura.</p>
+</li>
+<li>
+<p><strong>TFLint</strong>: Linter para Terraform con reglas específicas por provider.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_recursos_adicionales_2">Recursos adicionales</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.terraform.io/docs">Documentación oficial de Terraform</a></p>
+</li>
+<li>
+<p><a href="https://registry.terraform.io/">Terraform Registry</a> - Módulos y providers públicos</p>
+</li>
+<li>
+<p><a href="https://learn.hashicorp.com/terraform">HashiCorp Learn</a> - Tutoriales oficiales</p>
+</li>
+<li>
+<p><a href="https://github.com/hashicorp/terraform">Repositorio de Terraform en GitHub</a></p>
+</li>
+<li>
+<p><a href="https://www.terraform.io/cdktf">Terraform CDK</a> - Define infraestructura con lenguajes de programación</p>
+</li>
+<li>
+<p><a href="https://www.youtube.com/c/HashiCorp">Canal de YouTube de HashiCorp</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-10-30 08:34:30 +0100
+Last updated 2025-10-31 08:57:19 +0100
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
